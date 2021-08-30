@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load timestamp_to_dt %}
+{% block content %}
+<form class="mt-5" method="post">
+    {% csrf_token %}
+    <div class="mb-3 row">
+        <div class="col-md-4">
+            <label for="searchInput" class="form-label mt-3">Query</label>
+            <input type="text" name="query" {% if items %}readonly{% endif %} value="{{ request_data.query }}" class="form-control" id="searchInput" aria-describedby="searchHelp">
+        </div>
+
+        <div class="col-md-4">
+            <label for="accepted" class="form-label mt-3">Accepted</label>
+            <select name="accepted" class="form-control" id="accepted" {% if items %}readonly{% endif %} value="{{ request_data.accepted }}">
+                <option></option>
+                <option value="True">True</option>
+                <option value="False">False</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="body" class="form-label mt-3">Body</label>
+            <input type="text" name="body" class="form-control" id="body" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.body }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="closed" class="form-label mt-3">Closed</label>
+            <select name="closed" class="form-control" id="closed" {% if items %}readonly{% endif %} value="{{ request_data.query }}">
+                <option></option>
+                <option value="True">True</option>
+                <option value="False">False</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="migrated" class="form-label mt-3">Migrated</label>
+            <select name="migrated" class="form-control" id="migrated" {% if items %}readonly{% endif %} value="{{ request_data.query }}">
+                <option></option>
+                <option value="True">True</option>
+                <option value="False">False</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="notice" class="form-label mt-3">Notice</label>
+            <input type="text" name="notice" class="form-control" id="notice" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.notice }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="nottagged" class="form-label mt-3">Nottagged</label>
+            <input type="text" name="nottagged" class="form-control" id="nottagged" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.nottagged }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="tagged" class="form-label mt-3">Tagged</label>
+            <input type="text" name="tagged" class="form-control" id="tagged" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.tagged }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="title" class="form-label mt-3">Title</label>
+            <input type="text" name="title" class="form-control" id="title" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.title }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="title" class="form-label mt-3">User</label>
+            <input type="text" name="user" class="form-control" id="user" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.user }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="url" class="form-label mt-3">URL</label>
+            <input type="text" name="url" class="form-control" id="url" aria-describedby="searchHelp" {% if items %}readonly{% endif %} value="{{ request_data.url }}">
+        </div>
+
+        <div class="col-md-4">
+            <label for="wiki" class="form-label mt-3">Wiki</label>
+            <select name="wiki" class="form-control" id="wiki" {% if items %}readonly{% endif %} value="{{ request_data.wiki }}">
+                <option></option>
+                <option value="True">True</option>
+                <option value="False">False</option>
+            </select>
+        </div>
+        <input type="hidden" name="previous_page_no" value="{{ request_data.previous_page_no }}">
+    </div>
+    {% if items %}
+        <a type="buttom" href="/" class="btn btn-primary">Reset</a>
+        {% if has_more == True %}
+            <button type="submit" class="btn btn-secondary">Next Page</button>
+        {% endif %}
+    {% else %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    {% endif %}
+</form>
+<div class="col-md-12 mt-5">
+    {% if items %}
+        <ul class="list-group">
+            {% for item in items %}
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="col-md-12">
+                                <h5 class="mt-1">{{ item.title | safe }}</h5>
+                                <a href="{{ item.link }}" target="new">{{ item.link }}</a>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    Views : {{ item.view_count }}
+                                </div>
+                                <div class="col-md-6">Score : {{ item.score }}</div>
+                                <div class="col-md-6">Is Answered : {% if item.is_answered %}Yes{% else %}No{% endif %}</div>
+                                <div class="col-md-6">Answers : {{ item.answer_count }}</div>
+                                <div class="col-md-6">Creation Date : {{ item.creation_date | timestamp_to_dt | date:"D d M Y" }}</div>
+                                <div class="col-md-6">Last Activity Date : {{ item.last_activity_date | timestamp_to_dt | date:"D d M Y" }}</div>
+                                <div class="col-md-6">Last Edit Date : {{ item.last_edit_date | timestamp_to_dt | date:"D d M Y" }}</div>
+                            </div>
+                            <div>
+                                {% for tag in item.tags %}
+                                <span class="badge bg-secondary">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <picture>
+                                <img src="{{ item.owner.profile_image }}" width="150" alt="{{ item.owner.display_name }}" class="img-fluid img-thumbnail">
+                            </picture>
+                            <div><a class="bold" href="{{ item.owner.link }}" target="new">{{ item.owner.display_name }}</a></div>
+                            <small>Reputation : {{ item.owner.reputation }}</small>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock content %}
